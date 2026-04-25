@@ -1,0 +1,5 @@
+{
+    "python": ["Variables", "Loops", "Functions", "Lists", "If Else"],
+    "data_science": ["What is Data", "Mean Median Mode", "CSV Files", "Intro to ML"],
+    "govt_exam": ["Current Affairs", "Reasoning Basics", "Grammar", "Quant Basics"]
+  }

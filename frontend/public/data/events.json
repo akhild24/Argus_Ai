@@ -1,0 +1,82 @@
+[
+    {
+      "title": "Free Cybersecurity Workshop",
+      "org": "CDAC Indore",
+      "date": "May 3, 2026",
+      "city": "Indore",
+      "distance_from": ["Indore", "Dewas", "Ujjain"],
+      "category": "python"
+    },
+    {
+      "title": "NPTEL Python Study Meetup",
+      "org": "Local Learners Circle",
+      "date": "May 10, 2026",
+      "city": "Bhopal",
+      "distance_from": ["Bhopal", "Sagar", "Vidisha"],
+      "category": "python"
+    },
+    {
+      "title": "ITI Open Day — Tech Careers",
+      "org": "Government ITI Jaipur",
+      "date": "May 4, 2026",
+      "city": "Jaipur",
+      "distance_from": ["Jaipur", "Ajmer", "Alwar"],
+      "category": "govt_exam"
+    },
+    {
+      "title": "Data Science for Beginners",
+      "org": "Devi Ahilya University",
+      "date": "May 7, 2026",
+      "city": "Indore",
+      "distance_from": ["Indore", "Dewas", "Mhow"],
+      "category": "data_science"
+    },
+    {
+      "title": "Free Govt Exam Prep Session",
+      "org": "MP Rozgar Kendra",
+      "date": "May 5, 2026",
+      "city": "Bhopal",
+      "distance_from": ["Bhopal", "Raisen", "Sehore"],
+      "category": "govt_exam"
+    },
+    {
+      "title": "Python for Rural Entrepreneurs",
+      "org": "IIT Indore Outreach",
+      "date": "May 9, 2026",
+      "city": "Ujjain",
+      "distance_from": ["Ujjain", "Dewas", "Indore"],
+      "category": "python"
+    },
+    {
+      "title": "ML Basics Bootcamp",
+      "org": "TechSarthi",
+      "date": "May 12, 2026",
+      "city": "Ahmedabad",
+      "distance_from": ["Ahmedabad", "Gandhinagar", "Anand"],
+      "category": "data_science"
+    },
+    {
+      "title": "SSC Exam Strategy Workshop",
+      "org": "Samarth Coaching",
+      "date": "May 6, 2026",
+      "city": "Indore",
+      "distance_from": ["Indore", "Ujjain", "Ratlam"],
+      "category": "govt_exam"
+    },
+    {
+      "title": "Open Source Hackathon — Beginners Welcome",
+      "org": "GDG Bhopal",
+      "date": "May 11, 2026",
+      "city": "Bhopal",
+      "distance_from": ["Bhopal", "Sagar", "Hoshangabad"],
+      "category": "python"
+    },
+    {
+      "title": "Excel & Data Analysis Workshop",
+      "org": "Skill India MP",
+      "date": "May 8, 2026",
+      "city": "Gwalior",
+      "distance_from": ["Gwalior", "Morena", "Shivpuri"],
+      "category": "data_science"
+    }
+  ]
