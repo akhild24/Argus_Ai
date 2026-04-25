@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: ./Udaan
+    container_name: udaan-backend
+    env_file:
+      - ./Udaan/.env
+    environment:
+      GEMINI_MODEL: gemini-2.5-flash-lite
+      GEMINI_MODELS: gemini-2.5-flash-lite,gemini-2.5-flash,gemini-2.0-flash
+      GEMINI_TIMEOUT_SECONDS: 12
+    expose:
+      - "8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    container_name: udaan-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    restart: unless-stopped

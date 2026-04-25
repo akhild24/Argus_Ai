@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ArrowLeft, Rocket } from 'lucide-react';
-import { registerUser, loginUser, setToken } from '../services/auth';
+import { getMe, loginUser, setToken } from '../services/auth';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -28,13 +28,13 @@ export default function AuthPage() {
 
     setLoading(true);
     try {
-      // Store name + email for onboarding to use later
+      // Store name + email for onboarding to use later.
       localStorage.setItem('udaan_signup_meta', JSON.stringify({
         name: form.name,
         email: form.email,
         password: form.password,
       }));
-      // Don't register yet — register after onboarding when we have full profile
+      // Register after onboarding when we have the full profile.
       navigate('/onboarding');
     } catch (err) {
       setError(err.message);
@@ -53,11 +53,7 @@ export default function AuthPage() {
       const { access_token } = await loginUser(form.email, form.password);
       setToken(access_token);
 
-      // Fetch profile from backend and store in localStorage
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/auth/me`, {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
-      const data = await res.json();
+      const data = await getMe();
       const profile = {
         ...data.profile,
         name: data.name,
@@ -105,14 +101,6 @@ export default function AuthPage() {
       padding: 24,
       position: 'relative',
     }}>
-
-      {/* Background glow */}
-      <div style={{
-        position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-        width: 600, height: 300, borderRadius: '50%', pointerEvents: 'none',
-        background: 'radial-gradient(ellipse, rgba(13,148,136,0.12) 0%, transparent 70%)',
-        filter: 'blur(40px)',
-      }} />
 
       <div style={{ width: '100%', maxWidth: 440, position: 'relative', zIndex: 1 }}>
 
@@ -194,7 +182,7 @@ export default function AuthPage() {
           {/* Fields */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-            {/* Name — signup only */}
+            {/* Name, signup only */}
             {mode === 'signup' && (
               <div>
                 <label style={labelStyle}>Full Name</label>

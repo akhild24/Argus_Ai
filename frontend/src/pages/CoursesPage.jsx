@@ -15,18 +15,42 @@ const allTopics = {
     { name: 'CSV Files', desc: 'Reading and writing data files' },
     { name: 'Intro to ML', desc: 'How machines learn patterns' },
   ],
+  dsa: [
+    { name: 'Arrays', desc: 'Store multiple values in order' },
+    { name: 'Strings', desc: 'Work with text data' },
+    { name: 'Stacks and Queues', desc: 'Understand linear data flow' },
+    { name: 'Searching', desc: 'Find values efficiently' },
+    { name: 'Sorting', desc: 'Arrange values by rules' },
+  ],
+  accounting: [
+    { name: 'Accounting Equation', desc: 'Assets, liabilities, and capital' },
+    { name: 'Journal Entries', desc: 'Record business transactions' },
+    { name: 'Ledger Posting', desc: 'Move entries into accounts' },
+    { name: 'Trial Balance', desc: 'Check debit and credit totals' },
+    { name: 'Tally Basics', desc: 'Use accounting software confidently' },
+  ],
   govt_exam: [
     { name: 'Current Affairs', desc: 'Stay updated on national news' },
     { name: 'Reasoning Basics', desc: 'Logical and analytical thinking' },
     { name: 'Grammar', desc: 'English language fundamentals' },
     { name: 'Quant Basics', desc: 'Numbers and calculations' },
   ],
+  finance: [
+    { name: 'Simple Interest', desc: 'Understand basic returns' },
+    { name: 'Compound Interest', desc: 'Growth over repeated periods' },
+    { name: 'Banking Terms', desc: 'Learn finance vocabulary' },
+    { name: 'Budgeting', desc: 'Plan income and expenses' },
+    { name: 'Risk and Return', desc: 'Compare financial choices' },
+  ],
 };
 
 const subjectLabel = {
   python: 'Python Programming',
   data_science: 'Data Science',
+  dsa: 'Data Structures & Algorithms',
+  accounting: 'Accountancy & Tally',
   govt_exam: 'Govt Exam Prep',
+  finance: 'Finance & Banking',
 };
 
 export default function CoursesPage() {
@@ -38,7 +62,7 @@ export default function CoursesPage() {
   const topics = allTopics[profile.subject] || [];
 
   return (
-    <div style={{ padding: '32px', maxWidth: 900, margin: '0 auto' }}>
+    <div className="u-page" style={{ maxWidth: 960 }}>
       <div style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
           <BookOpen size={18} style={{ color: '#0d9488' }} />
@@ -52,11 +76,12 @@ export default function CoursesPage() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+      <div className="u-topic-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
         {topics.map((topic, i) => (
           <button
             key={topic.name}
             onClick={() => navigate(`/app/courses/${encodeURIComponent(topic.name)}`)}
+            className="u-topic-tile wide"
             style={{
               display: 'flex', alignItems: 'center', gap: 16,
               padding: '20px',

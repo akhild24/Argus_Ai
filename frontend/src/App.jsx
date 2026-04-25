@@ -8,10 +8,11 @@ import CoursesPage from './pages/CoursesPage';
 import TopicPage from './pages/TopicPage';
 import ProfilePage from './pages/ProfilePage';
 import OpportunitiesPage from './pages/OpportunitiesPage';
+import { getToken } from './services/auth';
 
 function ProtectedLayout() {
   const profile = localStorage.getItem('udaan_profile');
-  if (!profile) return <Navigate to="/" replace />;
+  if (!profile || !getToken()) return <Navigate to="/" replace />;
   return <SidebarLayout />;
 }
 

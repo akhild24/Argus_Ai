@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class Profile(BaseModel):
@@ -13,29 +13,41 @@ class Profile(BaseModel):
 
 class ExplainRequest(BaseModel):
     question: str
+    profile: Optional[Profile] = None
 
 class ExplainResponse(BaseModel):
     explanation: str
     mode_used: str
+    source: str = "ai"
+    model: Optional[str] = None
 
 class QuizRequest(BaseModel):
     topic: str
     level: str
     language: str
 
+class QuizOption(BaseModel):
+    id: str
+    text: str
+
 class QuizResponse(BaseModel):
     question: str
-    options: list[str]
+    options: list[QuizOption]
     correct_answer: str
     explanation: str
+    source: str = "ai"
+    model: Optional[str] = None
 
 class ReexplainRequest(BaseModel):
     topic: str
+    profile: Optional[Profile] = None
     previous_mode: str
 
 class ReexplainResponse(BaseModel):
     explanation: str
     new_mode: str
+    source: str = "ai"
+    model: Optional[str] = None
 
 class RegisterRequest(BaseModel):
     name: str
@@ -59,7 +71,7 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 class ProgressUpdate(BaseModel):
-    progress: int
+    progress: int = Field(ge=0, le=100)
 
 class OpportunityEvent(BaseModel):
     title: str
@@ -67,3 +79,9 @@ class OpportunityEvent(BaseModel):
     date: str
     city: str
     category: list[str]
+
+class OpportunityResponse(BaseModel):
+    events: list[OpportunityEvent]
+    bridge: str
+    source: str = "ai"
+    model: Optional[str] = None

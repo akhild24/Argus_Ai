@@ -44,14 +44,25 @@ export default function OnboardingPage() {
     name: '', degree: '', subject: '', style: '',
     level: '', language: '', experience: '', city: '',
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const set = (key, value) => setFormData(prev => ({ ...prev, [key]: value }));
+  const set = (key, value) => {
+    setError('');
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
   const next = () => setStep(s => s + 1);
 
   const finish = async (lastKey, lastValue) => {
     const finalData = { ...formData, [lastKey]: lastValue };
+    if (!finalData.city.trim()) {
+      setError('Please enter your city.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError('');
     const profile = buildProfile(finalData);
-    localStorage.setItem('udaan_profile', JSON.stringify(profile));
   
     try {
       const meta = JSON.parse(localStorage.getItem('udaan_signup_meta') || '{}');
@@ -70,12 +81,14 @@ export default function OnboardingPage() {
       };
       const { access_token } = await registerUser(payload);
       setToken(access_token);
-      localStorage.removeItem('udaan_signup_meta'); // clean up
+      localStorage.setItem('udaan_profile', JSON.stringify(profile));
+      localStorage.removeItem('udaan_signup_meta');
+      navigate('/app');
     } catch (err) {
-      console.warn('Backend offline — running locally:', err.message);
+      setError(err.message || 'Could not create your account. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
-  
-    navigate('/app');
   };
 
   const progress = Math.round(((step - 1) / TOTAL_STEPS) * 100);
@@ -355,6 +368,19 @@ export default function OnboardingPage() {
                 value={formData.city}
                 onChange={e => set('city', e.target.value)}
               />
+              {error && (
+                <div style={{
+                  margin: '-4px 0 14px',
+                  padding: '10px 12px',
+                  borderRadius: 10,
+                  background: 'rgba(239,68,68,0.08)',
+                  border: '1px solid rgba(239,68,68,0.2)',
+                  color: '#f87171',
+                  fontSize: 13,
+                }}>
+                  {error}
+                </div>
+              )}
               <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
                 What do you do outside college?
               </p>
@@ -366,8 +392,13 @@ export default function OnboardingPage() {
               ].map(opt => (
                 <button
                   key={opt.value}
+                  disabled={submitting}
                   onClick={() => finish('experience', opt.value)}
-                  style={btnBase}
+                  style={{
+                    ...btnBase,
+                    cursor: submitting ? 'not-allowed' : 'pointer',
+                    opacity: submitting ? 0.65 : 1,
+                  }}
                   onMouseEnter={e => {
                     e.currentTarget.style.border = '1px solid rgba(13,148,136,0.4)';
                     e.currentTarget.style.background = 'rgba(13,148,136,0.06)';
@@ -377,7 +408,7 @@ export default function OnboardingPage() {
                     e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
                   }}
                 >
-                  {opt.label}
+                  {submitting ? 'Creating account...' : opt.label}
                 </button>
               ))}
             </div>

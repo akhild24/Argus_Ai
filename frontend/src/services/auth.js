@@ -1,4 +1,5 @@
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const JSON_HEADERS = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
 
 export function getToken() {
   return localStorage.getItem('udaan_token');
@@ -14,43 +15,60 @@ export function authHeaders() {
   const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
+async function request(path, options = {}) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), options.timeout || 18000);
+
+  try {
+    const res = await fetch(`${BASE}${path}`, {
+      cache: 'no-store',
+      ...options,
+      headers: {
+        ...(options.body ? JSON_HEADERS : { 'Cache-Control': 'no-store' }),
+        ...(options.headers || {}),
+      },
+      signal: controller.signal,
+    });
+
+    let data = null;
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
+
+    if (!res.ok) {
+      throw new Error(data?.detail || `${res.status} ${res.statusText}`.trim() || 'Request failed');
+    }
+
+    return data;
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
 export async function registerUser(data) {
-  const res = await fetch(`${BASE}/auth/register`, {
+  return request('/auth/register', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || 'Registration failed');
-  }
-  return res.json();
 }
 export async function loginUser(email, password) {
-  const res = await fetch(`${BASE}/auth/login`, {
+  return request('/auth/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || 'Login failed');
-  }
-  return res.json();
 }
 export async function getMe() {
-  const res = await fetch(`${BASE}/auth/me`, {
+  return request('/auth/me', {
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error('Session expired');
-  return res.json();
 }
 export async function patchProgress(progress) {
-  const res = await fetch(`${BASE}/auth/progress`, {
+  return request('/auth/progress', {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: authHeaders(),
     body: JSON.stringify({ progress }),
   });
-  if (!res.ok) throw new Error('Progress update failed');
-  return res.json();
 }

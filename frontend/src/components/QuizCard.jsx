@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 import { generateQuiz, reExplainConcept } from '../services/api';
+import { patchProgress } from '../services/auth';
 
 export default function QuizCard({ topic, onPass }) {
   const [quiz, setQuiz] = useState(null);
@@ -8,7 +10,13 @@ export default function QuizCard({ topic, onPass }) {
   const [reExplain, setReExplain] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const getProfile = () => JSON.parse(localStorage.getItem('udaan_profile'));
+  const getProfile = () => {
+    try {
+      return JSON.parse(localStorage.getItem('udaan_profile') || '{}');
+    } catch {
+      return {};
+    }
+  };
 
   const loadQuiz = async () => {
     setResult(null);
@@ -16,106 +24,101 @@ export default function QuizCard({ topic, onPass }) {
     setReExplain('');
     const profile = getProfile();
     setLoading(true);
-    const data = await generateQuiz(topic, profile.level, profile.language);
-    setQuiz(data);
-    setLoading(false);
+    try {
+      const data = await generateQuiz(topic, profile.level || 'beginner', profile.language || 'English');
+      setQuiz(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const submitAnswer = async () => {
-    if (!selected) return;
+    if (!selected || !quiz) return;
     const profile = getProfile();
     if (selected === quiz.correct_answer) {
-      const updated = { ...profile, progress: Math.min(profile.progress + 10, 100) };
+      const nextProgress = Math.min(Number(profile.progress || 0) + 10, 100);
+      const updated = { ...profile, progress: nextProgress };
       localStorage.setItem('udaan_profile', JSON.stringify(updated));
       setResult('pass');
       if (onPass) onPass();
+      patchProgress(nextProgress).catch(error => {
+        console.warn('Progress saved locally, backend update failed:', error.message);
+      });
     } else {
       setResult('fail');
       setLoading(true);
-      const data = await reExplainConcept(topic, profile, 'example');
-      setLoading(false);
-      setReExplain(data.explanation);
+      try {
+        const data = await reExplainConcept(topic, profile, 'example');
+        setReExplain(data.explanation);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   if (!quiz && !loading) {
     return (
-      <button
-        onClick={loadQuiz}
-        style={{
-          width: '100%', padding: '14px', borderRadius: 16, fontSize: 13,
-          fontWeight: 600, cursor: 'pointer',
-          background: 'rgba(13,148,136,0.1)',
-          border: '1px solid rgba(13,148,136,0.25)',
-          color: '#0d9488',
-        }}
-      >
+      <button className="u-big-action" onClick={loadQuiz}>
         Take Quiz on This Topic
       </button>
     );
   }
 
   return (
-    <div style={{
-      background: 'rgba(255,255,255,0.02)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 20, padding: 20,
-    }}>
-      <p style={{ fontWeight: 600, fontSize: 14, color: '#f0f0f5', marginBottom: 16 }}>
-        Feynman Quiz
-      </p>
+    <div className="u-card quiz-card">
+      <div className="u-card-header">
+        <p style={{ fontWeight: 700, fontSize: 14, color: '#f0f0f5', margin: 0 }}>Feynman Quiz</p>
+        {quiz && (
+          <span className={quiz.source === 'fallback' ? 'u-ai-badge fallback' : 'u-ai-badge'}>
+            {quiz.source === 'fallback' ? 'Demo fallback' : 'AI Live'}{quiz.model ? ` - ${quiz.model}` : ''}
+          </span>
+        )}
+      </div>
 
-      {loading && (
-        <p style={{ fontSize: 13, color: '#6b7280' }}>Loading quiz...</p>
-      )}
+      {loading && <p style={{ fontSize: 13, color: '#6b7280' }}>Loading quiz...</p>}
 
       {quiz && !loading && (
         <>
-          <p style={{ fontSize: 13, color: '#d1d5db', marginBottom: 14, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 14, color: '#d1d5db', marginBottom: 14, lineHeight: 1.6 }}>
             {quiz.question}
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-            {quiz.options.map(opt => (
-              <button
-                key={opt.id}
-                onClick={() => !result && setSelected(opt.id)}
-                style={{
-                  padding: '12px 16px', borderRadius: 12, fontSize: 13, textAlign: 'left',
-                  cursor: result ? 'default' : 'pointer',
-                  background: selected === opt.id ? 'rgba(13,148,136,0.1)' : 'rgba(255,255,255,0.03)',
-                  border: selected === opt.id
-                    ? '1px solid rgba(13,148,136,0.35)'
-                    : '1px solid rgba(255,255,255,0.07)',
-                  color: '#f0f0f5',
-                }}
-              >
-                <span style={{ fontWeight: 600, textTransform: 'uppercase' }}>{opt.id}.</span> {opt.text}
-              </button>
-            ))}
+          <div className="quiz-options">
+            {quiz.options.map(opt => {
+              const isSelected = selected === opt.id;
+              const isCorrect = result && opt.id === quiz.correct_answer;
+              const isWrong = result === 'fail' && isSelected && !isCorrect;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => !result && setSelected(opt.id)}
+                  className={`quiz-option ${isSelected ? 'selected' : ''} ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''}`}
+                  disabled={Boolean(result)}
+                >
+                  <span style={{ fontWeight: 800, textTransform: 'uppercase' }}>{opt.id}.</span> {opt.text}
+                </button>
+              );
+            })}
           </div>
 
           {result === 'pass' && (
-            <div style={{
-              background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)',
-              borderRadius: 12, padding: 16,
-            }}>
-              <p style={{ fontWeight: 700, color: '#10b981', fontSize: 13, margin: '0 0 6px' }}>
-                Correct — +10% Progress
+            <div className="quiz-feedback pass">
+              <p style={{ fontWeight: 800, color: '#10b981', fontSize: 13, margin: '0 0 6px' }}>
+                Correct - +10% Progress
               </p>
-              <p style={{ fontSize: 13, color: '#6b7280', margin: 0, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 13, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
                 {quiz.explanation}
               </p>
+              <button className="u-text-action" onClick={loadQuiz} style={{ marginTop: 12 }}>
+                <RefreshCw size={13} /> Try another quiz
+              </button>
             </div>
           )}
 
           {result === 'fail' && (
-            <div style={{
-              background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)',
-              borderRadius: 12, padding: 16,
-            }}>
-              <p style={{ fontWeight: 700, color: '#ef4444', fontSize: 13, margin: '0 0 8px' }}>
-                Not quite — here is a different explanation:
+            <div className="quiz-feedback fail">
+              <p style={{ fontWeight: 800, color: '#ef4444', fontSize: 13, margin: '0 0 8px' }}>
+                Not quite - here is a different explanation:
               </p>
               {loading && <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Getting new explanation...</p>}
               {reExplain && (
@@ -123,33 +126,14 @@ export default function QuizCard({ topic, onPass }) {
                   <p style={{ fontSize: 13, color: '#9ca3af', margin: '0 0 12px', lineHeight: 1.6 }}>
                     {reExplain}
                   </p>
-                  <button
-                    onClick={loadQuiz}
-                    style={{
-                      padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-                      background: 'rgba(13,148,136,0.1)', border: '1px solid rgba(13,148,136,0.25)',
-                      color: '#0d9488', cursor: 'pointer',
-                    }}
-                  >
-                    Try New Quiz
-                  </button>
+                  <button className="u-pill-btn" onClick={loadQuiz}>Try New Quiz</button>
                 </>
               )}
             </div>
           )}
 
           {!result && (
-            <button
-              onClick={submitAnswer}
-              disabled={!selected}
-              style={{
-                width: '100%', padding: '12px', borderRadius: 12,
-                fontSize: 13, fontWeight: 600, cursor: selected ? 'pointer' : 'not-allowed',
-                background: selected ? '#0d9488' : 'rgba(255,255,255,0.04)',
-                border: 'none',
-                color: selected ? 'white' : '#4b5563',
-              }}
-            >
+            <button className="u-primary-btn full" onClick={submitAnswer} disabled={!selected}>
               Submit Answer
             </button>
           )}

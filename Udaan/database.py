@@ -11,11 +11,19 @@ client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
 db = client.Udaan
 users_collection = db.users
 
+def _to_object_id(user_id: str):
+    if not user_id or not ObjectId.is_valid(user_id):
+        return None
+    return ObjectId(user_id)
+
 async def get_user_by_email(email: str):
     return await users_collection.find_one({"email": email})
 
 async def get_user_by_id(user_id: str):
-    return await users_collection.find_one({"_id": ObjectId(user_id)})
+    object_id = _to_object_id(user_id)
+    if object_id is None:
+        return None
+    return await users_collection.find_one({"_id": object_id})
 
 async def create_user(user_data: dict) -> str:
     document = {
@@ -40,7 +48,11 @@ async def create_user(user_data: dict) -> str:
     return str(result.inserted_id)
 
 async def update_user_progress(user_id: str, progress: int):
+    object_id = _to_object_id(user_id)
+    if object_id is None:
+        return False
     await users_collection.update_one(
-        {"_id": ObjectId(user_id)},
+        {"_id": object_id},
         {"$set": {"progress": progress}}
     )
+    return True
