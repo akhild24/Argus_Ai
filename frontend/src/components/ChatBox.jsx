@@ -9,11 +9,10 @@ export default function ChatBox({ topic, onExplained }) {
   const [lastQuestion, setLastQuestion] = useState('');
   const [hasExplained, setHasExplained] = useState(false);
 
-  const getProfile = () =>
-    JSON.parse(localStorage.getItem('udaan_profile'));
+  const getProfile = () => JSON.parse(localStorage.getItem('udaan_profile'));
 
   const addMessage = (role, text) =>
-    setMessages((prev) => [...prev, { role, text }]);
+    setMessages(prev => [...prev, { role, text }]);
 
   const ask = async (q) => {
     const profile = getProfile();
@@ -58,91 +57,118 @@ export default function ChatBox({ topic, onExplained }) {
   const handleStillConfused = async () => {
     const profile = getProfile();
     setLoading(true);
-    const data = await reExplainConcept(
-      topic || lastQuestion,
-      profile,
-      modeUsed
-    );
+    const data = await reExplainConcept(topic || lastQuestion, profile, modeUsed);
     setLoading(false);
     setModeUsed(data.new_mode);
     addMessage('bot', data.explanation);
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow p-5">
+    <div style={{
+      background: 'rgba(255,255,255,0.02)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 20,
+      padding: 20,
+    }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-gray-800">
-          💬 Ask Udaan {topic && `— ${topic}`}
-        </h3>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <span style={{ fontWeight: 600, fontSize: 14, color: '#f0f0f5' }}>
+          Ask Udaan {topic && `— ${topic}`}
+        </span>
         <button
           onClick={handleLanguageToggle}
-          className="text-xs bg-teal-100 text-teal-800 px-3 py-1 rounded-full font-semibold hover:bg-teal-200"
+          style={{
+            fontSize: 11, fontWeight: 600, padding: '5px 12px', borderRadius: 99,
+            background: 'rgba(13,148,136,0.1)', border: '1px solid rgba(13,148,136,0.25)',
+            color: '#0d9488', cursor: 'pointer',
+          }}
         >
-          🌐 Toggle Language
+          Toggle Language
         </button>
       </div>
 
-      {/* Quick Topic Button */}
+      {/* Quick explain button */}
       {topic && messages.length === 0 && (
         <button
           onClick={handleTopicAsk}
-          className="w-full mb-4 border-2 border-dashed border-teal-300 text-teal-700 py-2 rounded-xl text-sm hover:bg-teal-50"
+          style={{
+            width: '100%', marginBottom: 14, padding: '10px',
+            background: 'transparent',
+            border: '1px dashed rgba(13,148,136,0.3)',
+            borderRadius: 12, fontSize: 13, color: '#0d9488',
+            cursor: 'pointer',
+          }}
         >
-          ⚡ Explain "{topic}" for me
+          Explain "{topic}" for me
         </button>
       )}
 
-      {/* Message Bubbles */}
-      <div className="space-y-3 min-h-[80px] max-h-72 overflow-y-auto mb-4">
+      {/* Messages */}
+      <div style={{
+        minHeight: 80, maxHeight: 280, overflowY: 'auto',
+        marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 10,
+      }}>
         {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-xs px-4 py-2 rounded-2xl text-sm leading-relaxed ${
-                m.role === 'user'
-                  ? 'bg-teal-700 text-white'
-                  : 'bg-gray-100 text-gray-800'
-              }`}
-            >
+          <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
+            <div style={{
+              maxWidth: '75%', padding: '10px 14px', borderRadius: 14,
+              fontSize: 13, lineHeight: 1.6,
+              background: m.role === 'user' ? '#0d9488' : 'rgba(255,255,255,0.05)',
+              border: m.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.08)',
+              color: '#f0f0f5',
+            }}>
               {m.text}
             </div>
           </div>
         ))}
-
         {loading && (
-          <div className="flex justify-start">
-            <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-400">
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div style={{
+              padding: '10px 14px', borderRadius: 14, fontSize: 13,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              color: '#6b7280',
+            }}>
               Thinking...
             </div>
           </div>
         )}
       </div>
 
-      {/* Still Confused Button */}
+      {/* Still confused */}
       {messages.length > 0 && !loading && (
         <button
           onClick={handleStillConfused}
-          className="text-sm text-orange-600 underline mb-3 block"
+          style={{
+            fontSize: 12, color: '#f97316',
+            background: 'transparent', border: 'none',
+            cursor: 'pointer', marginBottom: 12, padding: 0, display: 'block',
+          }}
         >
-          😕 Still confused? Explain it differently
+          Still confused? Explain it differently
         </button>
       )}
 
-      {/* Input Row */}
-      <div className="flex gap-2">
+      {/* Input */}
+      <div style={{ display: 'flex', gap: 8 }}>
         <input
-          className="flex-1 border-2 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500"
+          style={{
+            flex: 1, padding: '10px 14px', borderRadius: 12, fontSize: 13,
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            color: '#f0f0f5', outline: 'none',
+          }}
           placeholder="Ask anything about this topic..."
           value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+          onChange={e => setQuestion(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
         />
         <button
           onClick={handleSubmit}
-          className="bg-teal-700 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-teal-800"
+          style={{
+            padding: '10px 18px', borderRadius: 12, fontSize: 13, fontWeight: 600,
+            background: '#0d9488', border: 'none', color: 'white', cursor: 'pointer',
+          }}
         >
           Ask
         </button>

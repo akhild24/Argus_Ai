@@ -1,19 +1,21 @@
-export function buildProfile(formData) {
-    const skillMap = {
-      delivery: 'Logistics & Route Optimization',
-      farming: 'Resource Management & Planning',
-      shop: 'Customer Relations & Operations',
-      other: 'Problem Solving & Adaptability',
-    };
+const hiddenSkillMap = {
+    delivery: 'Route Optimization & Time Management',
+    farming:  'Pattern Recognition & Seasonal Planning',
+    shop:     'Business Logic & Customer Handling',
+    other:    'Problem Solving & Adaptability',
+  };
   
+  export function buildProfile(data) {
     return {
-      name: formData.name || 'Learner',
-      subject: formData.subject,
-      style: formData.style,
-      level: formData.level,
-      language: formData.language,
-      city: formData.city || 'Indore',
-      hiddenSkill: skillMap[formData.experience] || skillMap.other,
-      progress: 0,
+      name:       data.name,
+      degree:     data.degree,
+      subject:    data.subject,
+      style:      data.style,
+      level:      data.level,
+      language:   data.language,
+      city:       data.city,
+      experience: data.experience,
+      hiddenSkill: hiddenSkillMap[data.experience] || 'Problem Solving & Adaptability',
+      progress:   0,
     };
   }
