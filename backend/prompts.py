@@ -1,52 +1,149 @@
-def get_quiz_prompt(topic: str, level: str, language: str) -> str:
-    return f"""You are an expert tutor. Generate exactly 1 multiple-choice question on the topic: "{topic}".
+"""
+prompts.py — Argus AI Prompt Engine
+Team Argus | UDB-S7BT | Project UDAAN
+Hyper-Personalized Learning Assistant for Underserved Students
+"""
 
-Difficulty level: {level}
-Language: {language}
+from backend.models import StudentProfile
 
-Respond ONLY with a valid JSON object in this exact format (no markdown, no code blocks):
-{{
-  "question": "Your question here",
-  "options": [
-    {{"id": "a", "text": "Option A"}},
-    {{"id": "b", "text": "Option B"}},
-    {{"id": "c", "text": "Option C"}},
-    {{"id": "d", "text": "Option D"}}
-  ],
-  "correct_answer": "a",
-  "explanation": "Brief explanation of why this is correct"
-}}
+
+# ──────────────────────────────────────────
+#  Explanation Prompt
+# ──────────────────────────────────────────
+
+def get_explain_prompt(question: str, profile: StudentProfile) -> str:
+    style_instructions = {
+        "conceptual": "Start with intuition first, then explain physics principles.",
+        "mathematical": "Explain with equations, variables, and physical interpretation.",
+        "analogy": "Use real-world analogy before introducing theory.",
+        "research": "Explain like a scientific research assistant helping engineers."
+    }
+
+    level_instructions = {
+        "beginner": "Avoid complex equations. Focus on intuition and examples.",
+        "intermediate": "Use some physics terminology and structured reasoning.",
+        "advanced": "Use technical depth including equations and theoretical discussion."
+    }
+
+    language_instructions = {
+        "english": "Respond in clear scientific English.",
+        "hindi": "Respond in simple Hindi but keep physics terms in English.",
+        "hinglish": "Explain naturally using Hinglish with technical clarity."
+    }
+
+    return f"""
+You are an advanced physics research assistant working with a student team building an Anti-Gravity system under Project UDAAN.
+
+Student profile:
+Explanation style: {style_instructions.get(profile.style, style_instructions["conceptual"])}
+Level: {level_instructions.get(profile.level, level_instructions["intermediate"])}
+Language: {language_instructions.get(profile.language, language_instructions["english"])}
+
+Project context:
+The team is exploring gravity control concepts including:
+- gravitational fields
+- electromagnetic interactions
+- spacetime curvature
+- propulsion alternatives
+- experimental anti-gravity hypotheses
+- quantum vacuum effects
+- superconductors and inertial shielding (theoretical)
 
 Rules:
-- Exactly 4 options with ids a, b, c, d
-- correct_answer must be one of: a, b, c, d
-- If language is "hindi", write question and options in Hindi
-- If language is "hinglish", use a mix of Hindi and English
-- If language is "english", write everything in English
-- Return ONLY the JSON object, nothing else
+- Keep explanation structured
+- Avoid pseudoscience unless labeled theoretical
+- Mention whether concept is proven physics or speculative research
+- Prefer clarity over length
+- Max 180 words
+- End with one insight useful for engineering implementation
+
+Question:
+{question}
 """
 
 
-def get_reexplain_prompt(topic: str, profile: dict, previous_mode: str) -> str:
-    return f"""You are a friendly tutor helping a student who just got a quiz question wrong.
+# ──────────────────────────────────────────
+#  Adaptive Quiz Prompt
+# ──────────────────────────────────────────
 
-Topic: "{topic}"
-Student level: {profile.get("level", "beginner")}
-Preferred language: {profile.get("language", "english")}
-Learning style: {profile.get("style", "visual")}
-Previous explanation mode used: {previous_mode}
+def get_quiz_prompt(topic: str, profile: StudentProfile) -> str:
+    level_instructions = {
+        "beginner": "Simple conceptual MCQs. No equations. Everyday language.",
+        "intermediate": "Mix of conceptual and formula-based MCQs with one tricky option.",
+        "advanced": "Equation-heavy or theoretical MCQs requiring deep understanding."
+    }
 
-Your task:
-- Re-explain the topic using a DIFFERENT analogy or approach than "{previous_mode}"
-- Start your response with: "Let me try explaining this differently..."
-- Keep it under 120 words
-- Use the student's preferred language ({profile.get("language", "english")})
-- Match the student's level ({profile.get("level", "beginner")})
-- Make it engaging and easy to understand
+    language_instructions = {
+        "english": "Write questions in English.",
+        "hindi": "Write questions in simple Hindi but keep physics terms in English.",
+        "hinglish": "Write questions in Hinglish style."
+    }
 
-Respond ONLY with a JSON object in this exact format (no markdown, no code blocks):
+    return f"""
+You are an adaptive quiz generator for Project UDAAN — a hyper-personalized physics learning assistant for underserved college students.
+
+Topic: {topic}
+Difficulty: {level_instructions.get(profile.level, level_instructions["intermediate"])}
+Language: {language_instructions.get(profile.language, language_instructions["english"])}
+
+Generate exactly 3 multiple-choice questions on the topic.
+
+Format STRICTLY as JSON:
 {{
-  "explanation": "Your re-explanation here starting with Let me try explaining this differently...",
-  "new_mode": "the analogy/mode you used (e.g., real-life, story, visual, sports, cooking)"
+  "quiz": [
+    {{
+      "question": "...",
+      "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
+      "answer": "A",
+      "explanation": "Short explanation in 1-2 lines."
+    }}
+  ]
 }}
+
+Rules:
+- Each question must have exactly 4 options labeled A, B, C, D
+- The "answer" field must be just the letter (A/B/C/D)
+- Explanation must be adaptive to the student's level
+- Questions must be relevant to anti-gravity, gravity, or physics fundamentals
+- Do not include any text outside the JSON block
+"""
+
+
+# ──────────────────────────────────────────
+#  Career Guidance Prompt
+# ──────────────────────────────────────────
+
+def get_career_prompt(profile: StudentProfile, interests: str = "") -> str:
+    level_map = {
+        "beginner": "early-stage student still building fundamentals",
+        "intermediate": "student with working knowledge of physics concepts",
+        "advanced": "student ready for research-level opportunities"
+    }
+
+    language_instructions = {
+        "english": "Respond in clear English.",
+        "hindi": "Respond in Hindi but keep technical/career terms in English.",
+        "hinglish": "Use a friendly Hinglish tone with clear career advice."
+    }
+
+    return f"""
+You are a career counselor and mentor for Project UDAAN — a learning initiative for underserved Indian college students passionate about physics and aerospace.
+
+Student profile:
+- Level: {level_map.get(profile.level, level_map["intermediate"])}
+- Interests: {interests if interests else "physics, engineering, space technology"}
+- Language: {language_instructions.get(profile.language, language_instructions["english"])}
+
+Provide structured career guidance covering:
+1. 2-3 realistic career paths in physics/aerospace/anti-gravity research
+2. Key skills to build now (free resources preferred)
+3. One Indian institution or program relevant to their path
+4. One actionable next step they can take this week
+
+Rules:
+- Be encouraging but realistic
+- Prioritize low-cost or free opportunities
+- Mention ISRO, IITs, or government research bodies where relevant
+- Max 200 words
+- End with one motivational sentence specific to their situation
 """

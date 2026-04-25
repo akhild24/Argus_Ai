@@ -1,37 +1,44 @@
 from pydantic import BaseModel
+from dataclasses import dataclass
+from typing import Literal
 
 
-class Profile(BaseModel):
-    level: str
-    style: str
-    language: str
-    subject: str
+# ──────────────────────────────────────────
+#  Student Profile
+# ──────────────────────────────────────────
+
+@dataclass
+class StudentProfile:
+    style: Literal["conceptual", "mathematical", "analogy", "research"] = "conceptual"
+    level: Literal["beginner", "intermediate", "advanced"] = "intermediate"
+    language: Literal["english", "hindi", "hinglish"] = "english"
+
+
+# ──────────────────────────────────────────
+#  API Request / Response Models
+# ──────────────────────────────────────────
+
+class ProfilePayload(BaseModel):
+    style: str = "conceptual"
+    level: str = "intermediate"
+    language: str = "english"
+
+
+class ExplainRequest(BaseModel):
+    question: str
+    profile: ProfilePayload
 
 
 class QuizRequest(BaseModel):
     topic: str
-    level: str
-    language: str
+    profile: ProfilePayload
 
 
-class QuizOption(BaseModel):
-    id: str
-    text: str
+class CareerRequest(BaseModel):
+    profile: ProfilePayload
+    interests: str = ""
 
 
-class QuizResponse(BaseModel):
-    question: str
-    options: list[QuizOption]
-    correct_answer: str
-    explanation: str
-
-
-class ReexplainRequest(BaseModel):
-    topic: str
-    profile: Profile
-    previous_mode: str
-
-
-class ReexplainResponse(BaseModel):
-    explanation: str
-    new_mode: str
+class AIResponse(BaseModel):
+    result: str
+    topic: str = ""
