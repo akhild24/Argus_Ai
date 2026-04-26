@@ -87,24 +87,13 @@ Frontend
 bashcd frontend
 npm install
 npm run dev
-# Runs at http://localhost:5174
-With Docker (recommended)
-bash# From repo root
-docker-compose up --build -d
+# Runs at http://54.226.99.254
 
-Frontend: http://localhost:80
-Backend: http://localhost:8000
+
+Frontend: http://54.226.99.254:80
+Backend: http://54.226.99.254:8000
 Swagger docs: http://localhost:8000/docs
 
-
-🌍 Environment Variables
-Backend (Udaan/.env)
-GEMINI_API_KEY=your_gemini_api_key
-MONGO_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/udaan
-JWT_SECRET=your_32_char_secret
-JWT_EXPIRE_MINUTES=1440
-Frontend (frontend/.env)
-VITE_API_URL=http://localhost:8000
 
 🎯 Key Features
 
