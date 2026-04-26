@@ -1,113 +1,73 @@
-Copy🚀 Udaan — Hyper-Personalized AI Learning for Underserved College Students
+# 🚀 Udaan — AI Learning for Every Student
 
-Hackathon: Problem Statement PS1
-Team: Argus
-Members: Akhil Dwivedi · Hrishit Nagar · Pranjali Dangi · Pranjal Mourya
+> **Team Argus** · Akhil Dwivedi · Hrishit Nagar · Pranjali Dangi · Pranjal Mourya
 
+---
 
-📌 Problem Statement (PS1)
-Millions of college students from tier-2 and tier-3 cities in India are pursuing degrees without access to personalized mentorship, career clarity, or learning resources that match their pace, language, or background. Generic online platforms fail them — they're built for students who already have a head start.
-Udaan is a hyper-personalized AI system that caters to underserved college students by adapting to their career goals, learning pace, preferred language, and real-world experience — delivering education that actually fits their life.
+## 📌 Problem Statement (PS1)
 
-💡 What is Udaan?
-Udaan (उड़ान) means flight in Hindi — and that's exactly what this platform enables.
-It is an AI-powered adaptive learning platform that:
+Students from tier-2 and tier-3 cities lack personalized mentorship and career guidance. Generic platforms don't adapt to their language, pace, or background.
 
-Personalizes every explanation based on the student's level, style, and language (English / Hindi / Hinglish)
-Generates quizzes tailored to their subject and progress
-Surfaces hyper-local, free career opportunities relevant to their city and degree
-Builds a hidden skill profile based on their real-world experience (delivery work, farming, shop, etc.)
-Tracks learning progress and adapts over time
+**Udaan** fixes this — an AI that learns *who you are* and teaches *your way*.
 
+---
 
-🧠 How It Works
-Student Onboards (7 steps)
-        ↓
-Profile Built (degree, subject, level, language, city, experience)
-        ↓
-AI Engine (Gemini 2.5 Flash) personalizes every interaction
-        ↓
-Explain → Quiz → Re-Explain → Opportunities
-        ↓
-Progress tracked in MongoDB Atlas
+## 💡 What It Does
 
-🛠️ Tech Stack
-Backend
-TechnologyPurposeFastAPI + UvicornPython web framework & ASGI serverMongoDB AtlasCloud NoSQL databaseMotorAsync MongoDB driverGemini 2.5 FlashAI explanations, quizzes, opportunitiespython-joseJWT authenticationpasslib[bcrypt]Secure password hashing
-Frontend
-TechnologyPurposeReact 18 + ViteUI framework & build toolTailwind CSSUtility-first stylingReact Router v6Client-side routingLucide ReactIcon library
-Infrastructure
-TechnologyPurposeDocker + Docker ComposeContainerizationAWS EC2 (t2.micro)Cloud deploymentNginxStatic frontend serving & reverse proxy
+- 🧠 **AI Explanations** — personalized by level, language & learning style
+- 📝 **Adaptive Quizzes** — tracks your progress as you learn
+- 🌍 **Hyper-Local Opportunities** — real free events, workshops & jobs near your city based on your course *(our USP)*
+- 🗣️ **Multilingual** — English, Hindi, or Hinglish
+- 📊 **Progress Tracking** — 0 to 100, one quiz at a time
+- 📶 **Offline Caching** — profile and content available even without internet
 
-📁 Project Structure
-Argus_Ai/
-├── Udaan/                  # Backend (FastAPI)
-│   ├── main.py             # App entry point + all routes
-│   ├── models.py           # Pydantic request/response schemas
-│   ├── auth.py             # JWT + bcrypt security
-│   ├── database.py         # MongoDB Atlas CRUD helpers
-│   ├── prompts.py          # Gemini prompt engineering
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── .env                # Secrets (never commit)
-├── frontend/               # Frontend (React + Vite)
-│   ├── src/
-│   │   ├── pages/          # LandingPage, Onboarding, Dashboard, etc.
-│   │   ├── components/     # ChatBox, QuizCard, SidebarLayout
-│   │   ├── services/       # api.js, auth.js
-│   │   └── utils/          # profileLogic.js
-│   └── Dockerfile
-└── docker-compose.yml      # Orchestrates backend + frontend
+---
 
-🔌 API Endpoints
-MethodEndpointAuthDescriptionGET/NoHealth checkPOST/auth/registerNoRegister new userPOST/auth/loginNoLogin + get JWTGET/auth/meYesGet user profilePATCH/auth/progressYesUpdate learning progressPOST/explainYesAI explanation of a topicPOST/quizYesGenerate personalized quizPOST/reexplainYesRe-explain from a different angleGET/opportunitiesYesHyper-local career opportunities
+## 🌟 Our USP
 
-🗺️ Frontend Routes
-RoutePage/Landing Page/onboarding7-step profile builder/appDashboard/app/coursesCourse topics grid/app/courses/:topicAI chat + quiz for a topic/app/opportunitiesReal-time local events/app/profileFull profile view
+Most learning platforms stop at content. **Udaan connects learning to the real world.**
 
-⚙️ Local Setup
-Prerequisites
+After completing a topic, students are shown **free, hyper-local events** — workshops, hackathons, seminars — happening in their own city, relevant to exactly what they just learned. Learning Python in Indore? We show you the next GDG Indore workshop. Studying Finance in Nagpur? We surface the next ICAI career event.
 
-Python 3.11+
-Node.js 18+
-Docker Desktop
-MongoDB Atlas account
-Google Gemini API key
+**Learning → Skills → Real Exposure → Career.**
 
-Backend
-bashcd Udaan
-pip install -r requirements.txt
+---
 
-# Create .env file
-cp .env.example .env
-# Fill in GEMINI_API_KEY, MONGO_URI, JWT_SECRET, JWT_EXPIRE_MINUTES
+## 🛠️ Tech Stack
 
-uvicorn main:app --reload --port 8000
-Frontend
-bashcd frontend
-npm install
-npm run dev
-# Runs at http://54.226.99.254
+| Layer | Technology |
+|---|---|
+| Frontend | React 18 + Vite + Tailwind CSS |
+| Backend | FastAPI + Python |
+| Database | MongoDB Atlas |
+| AI | Gemini 2.5 Flash |
+| Deployed on | AWS EC2 |
 
+---
 
-Frontend: http://54.226.99.254:80
-Backend: http://54.226.99.254:8000
-Swagger docs: http://localhost:8000/docs
+## ⚙️ Run It
 
+```bash
+git clone https://github.com/akhild24/Argus_Ai.git
+cd Argus_Ai
 
-🎯 Key Features
+# Add your secrets to Udaan/.env
+docker-compose up --build -d
+```
 
-Multilingual AI — explains in English, Hindi, or Hinglish
-Adaptive difficulty — beginner / intermediate / advanced
-Learning styles — definition-first or example-first
-Subject tracks — Python, Data Science, DSA (B.Tech) · Accounting, Finance, Govt Exam Prep (B.Com)
-Hidden skill discovery — maps real-world experience to career-relevant strengths
-Hyper-local opportunities — AI-generated free events, workshops, and jobs by city
-Progress tracking — 0–100 score, increments with correct quiz answers
+---
 
+## 🌐 Live Demo
 
-👥 Team Argus
-NameRoleAkhil DwivediBackend & DeploymentHrishit NagarAI & Prompt EngineeringPranjali DangiFrontend & UI/UXPranjal MouryaDatabase & Integration
+**`http://54.226.99.254`**
 
-📄 License
-Built for hackathon purposes. All rights reserved by Team Argus.
+---
+
+## 👥 Team Argus
+
+| Name | Role |
+|---|---|
+| Akhil Dwivedi | Backend & Deployment |
+| Hrishit Nagar | AI & Prompt Engineering |
+| Pranjali Dangi | Research & Documentation |
+| Pranjal Mourya | Frontend & UI/UX |
